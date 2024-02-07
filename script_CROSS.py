@@ -1,56 +1,48 @@
-import os
 import pandas as pd
-from tqdm import tqdm
 
-# Définir le chemin complet des fichiers
-path_2023 = '/home/laptopus/Documents/SOURCES_EXCEL/2023.xlsx'
-path_sources = '/home/laptopus/Documents/SOURCES_EXCEL/sources.xlsx'
+# Chemins vers les fichiers
+chemin_sources = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/DATA/sources.xlsx'
+chemin_marge_brute = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/SORTIE/marge_brute.xlsx'
 
-# Charger les données depuis le fichier 2023.xlsx
-print("Chargement des données depuis le fichier 2023.xlsx...")
-df_2023 = pd.read_excel(path_2023)
 
-# Initialiser un DataFrame vide pour stocker les résultats
-result = pd.DataFrame()
+# Fonction pour nettoyer les noms de colonnes (retirer les espaces en trop)
+def nettoyer_noms_colonnes(df):
+    df.columns = df.columns.str.strip()
+    return df
 
-# Convertir la colonne 'Section Analytique - Code' du fichier 2023.xlsx en chaîne
-print("Conversion de la colonne 'Section Analytique - Code' en chaînes de caractères...")
-df_2023['Section Analytique - Code'] = df_2023['Section Analytique - Code'].astype(str)
 
-# Charger les données depuis le fichier sources.xlsx
-print("Chargement des données depuis le fichier sources.xlsx...")
-df_sources = pd.read_excel(path_sources, sheet_name=None)
+# Lire les noms des feuilles de calcul et trouver celle qui contient "BDD"
+nom_feuille = None
+with pd.ExcelFile(chemin_sources) as xls:
+    for sheet_name in xls.sheet_names:
+        if "BDD" in sheet_name:
+            nom_feuille = sheet_name
+            break
 
-# Initialiser la barre de progression
-total_sheets = len(df_sources)
-progress_bar = tqdm(total=total_sheets, desc='Traitement des feuilles')
+# Vérifier si une feuille correspondante a été trouvée
+if nom_feuille:
+    # Chargement des fichiers
+    sources = pd.read_excel(chemin_sources, sheet_name=nom_feuille)
+    marge_brute = pd.read_excel(chemin_marge_brute)
 
-# Parcourir chaque feuille du fichier sources.xlsx
-for sheet_name, df_source in df_sources.items():
-    print(f"\nTraitement de la feuille '{sheet_name}'...")
+    # Nettoyer les noms de colonnes
+    sources = nettoyer_noms_colonnes(sources)
+    marge_brute = nettoyer_noms_colonnes(marge_brute)
 
-    # Convertir chaque colonne de la feuille en chaînes de caractères
-    for column_name in df_source.columns:
-        print(f"   Conversion de la colonne '{column_name}' en chaînes de caractères...")
+    # Fusion des données basée sur la correspondance des clés
+    resultat = pd.merge(marge_brute, sources, left_on='Section Analytique - Code', right_on='codes analytiques',
+                        how='left')
 
-        # Filtrer les lignes de df_2023 qui correspondent aux valeurs de df_source
-        matching_rows = df_2023[df_2023['Section Analytique - Code'].isin(df_source[column_name])]
+    # Sélection des colonnes à copier
+    colonnes_a_copier = ["TYPE", "BL", "Groupe", "Compte", "GC", "Intérêt", "Session", "Date de fin", "Type de groupe",
+                         "Secteur d'activité", "Titre du produit", "BL d'origine", "grand dispo ou pas",
+                         "mode Formation", "regroupements Secteurs d'Activité", "pays facturation"]
 
-        # Afficher les données ajoutées à chaque ligne
-        for index, row in matching_rows.iterrows():
-            print(f"      Ajout de la ligne {index} - TROUVÉ")
+    # Copier les colonnes spécifiques
+    for colonne in colonnes_a_copier:
+        marge_brute[colonne] = resultat[colonne]
 
-        # Ajouter les résultats au DataFrame global
-        result = pd.concat([result, matching_rows], ignore_index=True)
-
-    # Mettre à jour la barre de progression
-    progress_bar.update(1)
-
-# Fermer la barre de progression
-progress_bar.close()
-
-# Enregistrer le résultat dans un nouveau fichier Excel
-output_path = '/home/laptopus/Documents/SOURCES_EXCEL/output.xlsx'
-result.to_excel(output_path, index=False)
-
-print(f"\nLe résultat a été enregistré dans le fichier {output_path}.")
+    # Sauvegarder le fichier modifié
+    marge_brute.to_excel(chemin_marge_brute, index=False)
+else:
+    print("Aucune feuille contenant 'BDD' n'a été trouvée dans le fichier.")
