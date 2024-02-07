@@ -1,8 +1,8 @@
 import pandas as pd
 
 # Chemins des fichiers
-chemin_source = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/DATA/2023.xlsx'
-chemin_sortie = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/nouveau_fichier.xlsx'
+chemin_source = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/SORTIE/marge_brute.xlsx'
+chemin_sortie = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/marge_brute_finale.xlsx'
 
 # Chargement du fichier Excel
 df = pd.read_excel(chemin_source)
@@ -21,9 +21,9 @@ def categoriser(ligne):
     Returns:
         La catégorie de la valeur 'BL'.
     """
-    bl = ligne['BL'].strip()
+    bl = str(ligne['BL']).strip() if pd.notna(ligne['BL']) else ""
     # Enlève les espaces superflus de la valeur de 'BL'
-    mode_formation = ligne['mode de formation'].strip()  # Enlève les espaces superflus de 'mode de formation'
+    mode_formation = str(ligne['mode Formation']).strip() if pd.notna(ligne['mode Formation']) else ""
 
     # Applique les règles selon les conditions fournies
     if bl == "Regroupement Réglementaire" and mode_formation in ["Executive MOOC", "Corporate MOOC"]:
@@ -52,11 +52,11 @@ def categoriser_nouvelle_bp(ligne):
     Returns:
         La catégorie de la valeur de la nouvelle colonne 'Mode de Formation Version BP'.
     """
-    mode_formation = ligne['mode de formation'].strip()
-    titre_produit = ligne['Titre du produit'].lower()  # Convertir en minuscules pour la recherche
-    bl = ligne['BL'].strip()
-
+    titre_produit = ligne['Titre du produit']
+    bl = str(ligne['BL']).strip() if pd.notna(ligne['BL']) else ""
+    mode_formation = str(ligne['mode Formation']).strip() if pd.notna(ligne['mode Formation']) else ""
     # Appliquer les nouvelles règles
+
     if bl == "Regroupement Réglementaire" and mode_formation in ["Corporate MOOC", "Executive MOOC"]:
         return "DL REGLEMENTAIRE"
     elif bl == "Regroupement Réglementaire" and mode_formation in ["In house training", "Public training"]:
