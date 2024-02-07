@@ -11,8 +11,16 @@ df = pd.read_excel(chemin_source)
 df.columns = df.columns.str.strip()
 
 
-# Fonction pour appliquer les règles et mettre à jour la colonne 'BL'
 def categoriser(ligne):
+    """
+    Fonction pour catégoriser la valeur de la colonne 'BL' selon les règles définies.
+
+    Args:
+        ligne: Une ligne du DataFrame Pandas.
+
+    Returns:
+        La catégorie de la valeur 'BL'.
+    """
     bl = ligne['BL'].strip()  # Enlève les espaces superflus de la valeur de 'BL'
     mode_formation = ligne['mode de formation'].strip()  # Enlève les espaces superflus de 'mode de formation'
 
@@ -33,8 +41,16 @@ def categoriser(ligne):
         return bl  # Retourne la valeur existante si aucune règle ne s'applique
 
 
-# Fonction pour appliquer les nouvelles règles
 def categoriser_nouvelle_bp(ligne):
+    """
+    Fonction pour catégoriser la valeur de la nouvelle colonne 'Mode de Formation Version BP'.
+
+    Args:
+        ligne: Une ligne du DataFrame Pandas.
+
+    Returns:
+        La catégorie de la valeur de la nouvelle colonne 'Mode de Formation Version BP'.
+    """
     mode_formation_bp = ligne['Mode de Formation Version BP'].strip()
     mode_formation = ligne['mode de formation'].strip()
     titre_produit = ligne['Titre du produit'].lower()  # Convertir en minuscules pour la recherche
