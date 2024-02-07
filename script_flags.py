@@ -35,6 +35,5 @@ def categoriser(ligne):
 
 # Application des règles directement à la colonne 'BL'
 df['Mode de Formation Version BP'] = df.apply(categoriser, axis=1)
-print("titi")
 # Sauvegarde dans un nouveau fichier Excel
 df.to_excel(chemin_sortie, index=False)
