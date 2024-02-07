@@ -1,18 +1,21 @@
 import pandas as pd
+from tqdm import tqdm
 
 # Chemins vers les fichiers
 chemin_sources = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/DATA/sources.xlsx'
 chemin_marge_brute = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/SORTIE/marge_brute.xlsx'
+
 
 # Fonction pour nettoyer les noms de colonnes
 def nettoyer_noms_colonnes(df):
     df.columns = df.columns.str.strip()
     return df
 
+
 # Lire les noms des feuilles de calcul et trouver celle qui contient "BDD"
 nom_feuille = None
 with pd.ExcelFile(chemin_sources) as xls:
-    for sheet_name in xls.sheet_names:
+    for sheet_name in tqdm(xls.sheet_names, desc="Recherche de la feuille 'BDD'", unit="feuille"):
         if "BDD" in sheet_name:
             nom_feuille = sheet_name
             break
@@ -32,13 +35,16 @@ if nom_feuille:
         marge_brute.drop(columns=["Commentaire"], inplace=True)
 
     # Fusion des données basée sur la correspondance des clés
-    resultat = pd.merge(marge_brute, sources, left_on='Section Analytique - Code', right_on='codes analytiques', how='left')
+    resultat = pd.merge(marge_brute, sources, left_on='Section Analytique - Code', right_on='codes analytiques',
+                        how='left')
 
     # Sélection des colonnes à copier
-    colonnes_a_copier = ["TYPE", "BL", "Groupe", "Compte", "GC", "Intérêt", "Session", "Date de fin", "Type de groupe", "Secteur d'activité", "Titre du produit", "BL d'origine", "grand dispo ou pas", "mode Formation", "regroupements Secteurs d'Activité", "pays facturation"]
+    colonnes_a_copier = ["TYPE", "BL", "Groupe", "Compte", "GC", "Intérêt", "Session", "Date de fin", "Type de groupe",
+                         "Secteur d'activité", "Titre du produit", "BL d'origine", "grand dispo ou pas",
+                         "mode Formation", "regroupements Secteurs d'Activité", "pays facturation"]
 
     # Copier les colonnes spécifiques
-    for colonne in colonnes_a_copier:
+    for colonne in tqdm(colonnes_a_copier, desc="Copie des colonnes", unit="colonne"):
         marge_brute[colonne] = resultat[colonne]
 
     # Sauvegarder le fichier modifié

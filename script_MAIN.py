@@ -2,17 +2,18 @@ import subprocess
 from tqdm import tqdm
 import time
 
-
-def run_script(script_path):
+def run_script(script_path, message):
     """
-    Exécute un script Python situé au chemin spécifié.
+    Exécute un script Python situé au chemin spécifié et affiche un message approprié.
     """
+    print(message)
+    time.sleep(1)  # Petite pause pour lire le message
     try:
         subprocess.run(["python", script_path], check=True)
-        print(f"✅ Script exécuté avec succès : {script_path}")
+        print(f"✅ Exécution réussie : {script_path}")
     except subprocess.CalledProcessError as e:
         print(f"❌ Erreur lors de l'exécution du script {script_path}: {e}")
-
+    time.sleep(1)  # Petite pause après l'exécution
 
 # Chemin du dossier contenant vos scripts
 base_path = "/home/laptopus/PycharmProjects/Excel_automation"
@@ -24,17 +25,15 @@ scripts = [
     f"{base_path}/script_LABEL.py",
 ]
 
-# Messages encourageants
-encouragements = [
-    "🚀 Lancement du premier script, c'est parti !",
-    "🔥 Deuxième script en cours, super travail !",
-    "✨ Dernier script, presque terminé !"
+# Messages professionnels pour chaque script
+messages = [
+    "Démarrage du processus de concaténation des données.",
+    "Début de l'opération de croisement des données.",
+    "Lancement du processus de catégorisation des données."
 ]
 
-# Exécution séquentielle des scripts avec barre de progression et messages
-for i, script in enumerate(tqdm(scripts, desc="Progression globale", unit="script")):
-    print(encouragements[i])
-    run_script(script)
-    time.sleep(1)  # Petite pause pour l'affichage
+# Exécution séquentielle des scripts avec barre de progression
+for script, message in zip(tqdm(scripts, desc="Progression globale", unit="script"), messages):
+    run_script(script, message)
 
-print("🎉 Tous les scripts ont été exécutés avec succès !")
+print("Processus terminé. Tous les scripts ont été exécutés avec succès.")

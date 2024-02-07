@@ -1,4 +1,5 @@
 import pandas as pd
+from tqdm import tqdm
 
 # Chemins des fichiers
 chemin_source = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/SORTIE/marge_brute.xlsx'
@@ -10,22 +11,10 @@ df = pd.read_excel(chemin_source)
 # Nettoyer les noms de colonnes pour enlever les espaces superflus
 df.columns = df.columns.str.strip()
 
-
 def categoriser(ligne):
-    """
-    Fonction pour catégoriser la valeur de la colonne 'BL' selon les règles définies.
-
-    Args:
-        ligne: Une ligne du DataFrame Pandas.
-
-    Returns:
-        La catégorie de la valeur 'BL'.
-    """
     bl = str(ligne['BL']).strip() if pd.notna(ligne['BL']) else ""
-    # Enlève les espaces superflus de la valeur de 'BL'
     mode_formation = str(ligne['mode Formation']).strip() if pd.notna(ligne['mode Formation']) else ""
 
-    # Applique les règles selon les conditions fournies
     if bl == "Regroupement Réglementaire" and mode_formation in ["Executive MOOC", "Corporate MOOC"]:
         return "REGLEMENTAIRE"
     elif bl != "Regroupement Réglementaire" and mode_formation in ["Executive MOOC", "Corporate MOOC"]:
@@ -39,23 +28,12 @@ def categoriser(ligne):
     elif bl != "Regroupement Réglementaire" and mode_formation == "Online Certificate":
         return "EOC"
     else:
-        return bl  # Retourne la valeur existante si aucune règle ne s'applique
-
+        return bl
 
 def categoriser_nouvelle_bp(ligne):
-    """
-    Fonction pour catégoriser la valeur de la nouvelle colonne 'Mode de Formation Version BP'.
-
-    Args:
-        ligne: Une ligne du DataFrame Pandas.
-
-    Returns:
-        La catégorie de la valeur de la nouvelle colonne 'Mode de Formation Version BP'.
-    """
     titre_produit = ligne['Titre du produit']
     bl = str(ligne['BL']).strip() if pd.notna(ligne['BL']) else ""
     mode_formation = str(ligne['mode Formation']).strip() if pd.notna(ligne['mode Formation']) else ""
-    # Appliquer les nouvelles règles
 
     if bl == "Regroupement Réglementaire" and mode_formation in ["Corporate MOOC", "Executive MOOC"]:
         return "DL REGLEMENTAIRE"
@@ -72,12 +50,13 @@ def categoriser_nouvelle_bp(ligne):
     else:
         return "AUTRE DL"
 
+# Application de la première règle directement à la colonne 'BL' avec barre de progression
+tqdm.pandas(desc="Catégorisation 1")
+df['Mode de Formation Version BP'] = df.progress_apply(categoriser, axis=1)
 
-# Application de la première règle directement à la colonne 'BL'
-df['Mode de Formation Version BP'] = df.apply(categoriser, axis=1)
-
-# Application de la deuxième règle pour créer la nouvelle colonne temporairement
-df['Mode de formation new BP Temp'] = df.apply(categoriser_nouvelle_bp, axis=1)
+# Application de la deuxième règle pour créer la nouvelle colonne temporairement avec barre de progression
+tqdm.pandas(desc="Catégorisation 2")
+df['Mode de formation new BP Temp'] = df.progress_apply(categoriser_nouvelle_bp, axis=1)
 
 # Trouver l'index de la colonne 'Mode de Formation Version BP'
 index_mode_formation_version_bp = df.columns.get_loc('Mode de Formation Version BP')
