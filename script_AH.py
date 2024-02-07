@@ -21,7 +21,8 @@ def categoriser(ligne):
     Returns:
         La catégorie de la valeur 'BL'.
     """
-    bl = ligne['BL'].strip()  # Enlève les espaces superflus de la valeur de 'BL'
+    bl = ligne['BL'].strip()
+    # Enlève les espaces superflus de la valeur de 'BL'
     mode_formation = ligne['mode de formation'].strip()  # Enlève les espaces superflus de 'mode de formation'
 
     # Applique les règles selon les conditions fournies
@@ -29,9 +30,9 @@ def categoriser(ligne):
         return "REGLEMENTAIRE"
     elif bl != "Regroupement Réglementaire" and mode_formation in ["Executive MOOC", "Corporate MOOC"]:
         return "AUTRES DISTANCIELS"
-    elif bl != "Regroupement Réglementaire" and mode_formation == "In house training":
+    elif mode_formation == "In house training":
         return "INTRA"
-    elif bl != "Regroupement Réglementaire" and mode_formation == "Public training":
+    elif mode_formation == "Public training":
         return "INTER"
     elif mode_formation in ["Skills First INTER", "Skills First INTRA"]:
         return "SKILL FIRST"
@@ -51,28 +52,25 @@ def categoriser_nouvelle_bp(ligne):
     Returns:
         La catégorie de la valeur de la nouvelle colonne 'Mode de Formation Version BP'.
     """
-    mode_formation_bp = ligne['Mode de Formation Version BP'].strip()
     mode_formation = ligne['mode de formation'].strip()
     titre_produit = ligne['Titre du produit'].lower()  # Convertir en minuscules pour la recherche
     bl = ligne['BL'].strip()
 
     # Appliquer les nouvelles règles
-    if mode_formation_bp == "Réglementaire" and mode_formation in ["Corporate MOOC", "Executive MOOC"]:
+    if bl == "Regroupement Réglementaire" and mode_formation in ["Corporate MOOC", "Executive MOOC"]:
         return "DL REGLEMENTAIRE"
-    elif mode_formation_bp == "Réglementaire" and mode_formation == "In house training":
-        return "INTRA PRÉSENTIEL RÉGLEMENTAIRE"
-    elif mode_formation_bp == "Regroupement Réglementaire" and mode_formation == "Public training":
-        return "INTER PRÉSENTIEL RÉGLEMENTAIRE"
+    elif bl == "Regroupement Réglementaire" and mode_formation in ["In house training", "Public training"]:
+        return "PRÉSENTIEL RÉGLEMENTAIRE"
     elif bl != "Regroupement Réglementaire" and mode_formation == "Public training":
         return "INTER PRÉSENTIEL HORS REGLEMENTAIRE"
     elif bl != "Regroupement Réglementaire" and mode_formation == "In house training":
         return "INTRA PRÉSENTIEL HORS REGLEMENTAIRE"
-    elif mode_formation_bp == "EOC" and any(x in titre_produit for x in ["hec", "cbs", "financ"]):
+    elif bl != "Regroupement Réglementaire" and mode_formation == "Online Certificate" and any(x in titre_produit for x in ["hec", "cbs", "financ"]):
         return "FEO FINANCE"
-    elif mode_formation_bp == "EOC" and not any(x in titre_produit for x in ["hec", "cbs", "financ"]):
+    elif bl != "Regroupement Réglementaire" and mode_formation == "Online Certificate" and not any(x in titre_produit for x in ["hec", "cbs", "financ"]):
         return "FEO NON FINANCE"
     else:
-        return "Autre"
+        return "AUTRE DL"
 
 
 # Application de la première règle directement à la colonne 'BL'
