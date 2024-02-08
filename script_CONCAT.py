@@ -7,14 +7,17 @@ CHEMIN_DONNEES_SOURCE = "/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/DATA/"
 CHEMIN_DONNEES_SORTIE = "/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/SORTIE/"
 NOM_FICHIER_SORTIE = "marge_brute.xlsx"
 
+
 # Fonction pour lister les fichiers correspondants
 def lister_fichiers(dossier):
     fichiers_a_traiter = []
     with os.scandir(dossier) as entries:
         for entry in entries:
-            if entry.is_file() and (entry.name.startswith("GL_analytique_FFE") or entry.name.startswith("GL_analytique_FFSAS")) and entry.name.endswith(".xlsx"):
+            if entry.is_file() and (entry.name.startswith("GL_analytique_FFE") or entry.name.startswith(
+                    "GL_analytique_FFSAS")) and entry.name.endswith(".xlsx"):
                 fichiers_a_traiter.append(entry.name)
     return fichiers_a_traiter
+
 
 # Fonction pour charger les feuilles YTD avec la colonne "Entité juridique"
 def charger_feuilles_YTD(dossier, fichiers):
@@ -29,6 +32,7 @@ def charger_feuilles_YTD(dossier, fichiers):
                 dataframes.append(df)
     return dataframes
 
+
 # Fonction pour appliquer les modifications de dataframe
 def modifier_dataframes(dataframes):
     for df in tqdm(dataframes, desc="Modification des dataframes", unit="dataframe"):
@@ -42,9 +46,11 @@ def modifier_dataframes(dataframes):
         trimestres = {1: 'T1', 2: 'T2', 3: 'T3', 4: 'T4'}
         df.insert(18, "Trimestre", pd.to_datetime(df.iloc[:, 5]).dt.quarter.map(lambda x: trimestres.get(x, '')))
 
+
 def sauvegarder_donnees(dossier_sortie, dataframes):
     dataframe_concatene = pd.concat(dataframes, ignore_index=True)
     dataframe_concatene.to_excel(os.path.join(dossier_sortie, NOM_FICHIER_SORTIE), index=False)
+
 
 # Exécution des fonctions
 fichiers = lister_fichiers(CHEMIN_DONNEES_SOURCE)

@@ -11,6 +11,7 @@ df = pd.read_excel(chemin_source)
 # Nettoyer les noms de colonnes pour enlever les espaces superflus
 df.columns = df.columns.str.strip()
 
+
 def categoriser(ligne):
     bl = str(ligne['BL']).strip() if pd.notna(ligne['BL']) else ""
     mode_formation = str(ligne['mode Formation']).strip() if pd.notna(ligne['mode Formation']) else ""
@@ -30,6 +31,7 @@ def categoriser(ligne):
     else:
         return bl
 
+
 def categoriser_nouvelle_bp(ligne):
     titre_produit = ligne['Titre du produit']
     bl = str(ligne['BL']).strip() if pd.notna(ligne['BL']) else ""
@@ -43,12 +45,15 @@ def categoriser_nouvelle_bp(ligne):
         return "INTER PRÉSENTIEL HORS REGLEMENTAIRE"
     elif bl != "Regroupement Réglementaire" and mode_formation == "In house training":
         return "INTRA PRÉSENTIEL HORS REGLEMENTAIRE"
-    elif bl != "Regroupement Réglementaire" and mode_formation == "Online Certificate" and any(x in titre_produit for x in ["hec", "cbs", "financ"]):
+    elif bl != "Regroupement Réglementaire" and mode_formation == "Online Certificate" and any(
+            x in titre_produit for x in ["hec", "cbs", "financ"]):
         return "FEO FINANCE"
-    elif bl != "Regroupement Réglementaire" and mode_formation == "Online Certificate" and not any(x in titre_produit for x in ["hec", "cbs", "financ"]):
+    elif bl != "Regroupement Réglementaire" and mode_formation == "Online Certificate" and not any(
+            x in titre_produit for x in ["hec", "cbs", "financ"]):
         return "FEO NON FINANCE"
     else:
         return "AUTRE DL"
+
 
 # Application de la première règle directement à la colonne 'BL' avec barre de progression
 tqdm.pandas(desc="Catégorisation 1")
