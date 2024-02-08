@@ -43,10 +43,6 @@ def main():
     sources = nettoyer_noms_colonnes(sources)
     marge_brute = nettoyer_noms_colonnes(marge_brute)
 
-    # Supprimer la colonne "Commentaire" si elle existe
-    if "Commentaire" in marge_brute.columns:
-        marge_brute.drop(columns=["Commentaire"], inplace=True)
-
     # Fusionner les données basée sur la correspondance des clés
     resultat = fusionner_sources_et_marge_brute(sources, marge_brute)
 
