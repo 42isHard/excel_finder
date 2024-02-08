@@ -14,7 +14,9 @@ def run_script(script_path, message):
         print(f"✅ Exécution réussie : {script_path}")
     except subprocess.CalledProcessError as e:
         print(f"❌ Erreur lors de l'exécution du script {script_path}: {e}")
+        return False
     time.sleep(1)  # Petite pause après l'exécution
+    return True
 
 
 # Chemin du dossier contenant vos scripts
@@ -36,6 +38,8 @@ messages = [
 
 # Exécution séquentielle des scripts avec barre de progression
 for script, message in zip(tqdm(scripts, desc="Progression globale", unit="script"), messages):
-    run_script(script, message)
-
-print("Processus terminé. Tous les scripts ont été exécutés avec succès.")
+    if not run_script(script, message):
+        print("Abandon du processus en raison d'une erreur.")
+        break
+else:
+    print("Processus terminé. Tous les scripts ont été exécutés avec succès.")
