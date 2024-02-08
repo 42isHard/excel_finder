@@ -1,30 +1,43 @@
 import pandas as pd
 from tqdm import tqdm
 
-# Chemins vers les fichiers
-chemin_sources = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/DATA/sources.xlsx'
-chemin_marge_brute = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/SORTIE/marge_brute.xlsx'
+# Constantes pour les chemins des fichiers
+CHEMIN_SOURCES_CSV = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/DATA/sources_CROSS.csv'
+CHEMIN_MARGE_BRUTE_CSV = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/SORTIE/marge_brute_CONCAT.csv'
+CHEMIN_MARGE_BRUTE_CROSS_CSV = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/SORTIE/marge_brute_CROSS.csv'
 
 
-# Fonction pour nettoyer les noms de colonnes
+def charger_csv(chemin_fichier):
+    """Fonction pour charger un fichier CSV."""
+    return pd.read_csv(chemin_fichier, dtype=str)
+
+
 def nettoyer_noms_colonnes(df):
-    df.columns = df.columns.str.strip()
-    return df
+    """Fonction pour nettoyer les noms de colonnes."""
+    return df.rename(columns=str.strip)
 
 
-# Lire les noms des feuilles de calcul et trouver celle qui contient "BDD"
-nom_feuille = None
-with pd.ExcelFile(chemin_sources) as xls:
-    for sheet_name in tqdm(xls.sheet_names, desc="Recherche de la feuille 'BDD'", unit="feuille"):
-        if "BDD" in sheet_name:
-            nom_feuille = sheet_name
-            break
+def fusionner_sources_et_marge_brute(sources, marge_brute):
+    """Fonction pour fusionner les données sources et la marge brute."""
+    return pd.merge(marge_brute, sources, left_on='Section Analytique - Code', right_on='codes analytiques', how='left')
 
-# Vérifier si une feuille correspondante a été trouvée
-if nom_feuille:
-    # Chargement des fichiers
-    sources = pd.read_excel(chemin_sources, sheet_name=nom_feuille)
-    marge_brute = pd.read_excel(chemin_marge_brute)
+
+def copier_colonnes_specifiques(resultat, colonnes, df):
+    """Fonction pour copier les colonnes spécifiques."""
+    for colonne in tqdm(colonnes, desc="Copie des colonnes", unit="colonne"):
+        df[colonne] = resultat[colonne]
+
+
+def sauvegarder_csv(df, chemin_fichier):
+    """Fonction pour sauvegarder un DataFrame en CSV."""
+    df.to_csv(chemin_fichier, index=False)
+
+
+def main():
+    """Fonction principale."""
+    # Charger les données sources et la marge brute
+    sources = charger_csv(CHEMIN_SOURCES_CSV)
+    marge_brute = charger_csv(CHEMIN_MARGE_BRUTE_CSV)
 
     # Nettoyer les noms de colonnes
     sources = nettoyer_noms_colonnes(sources)
@@ -34,20 +47,20 @@ if nom_feuille:
     if "Commentaire" in marge_brute.columns:
         marge_brute.drop(columns=["Commentaire"], inplace=True)
 
-    # Fusion des données basée sur la correspondance des clés
-    resultat = pd.merge(marge_brute, sources, left_on='Section Analytique - Code', right_on='codes analytiques',
-                        how='left')
+    # Fusionner les données basée sur la correspondance des clés
+    resultat = fusionner_sources_et_marge_brute(sources, marge_brute)
 
-    # Sélection des colonnes à copier
+    # Colonnes à copier
     colonnes_a_copier = ["TYPE", "BL", "Groupe", "Compte", "GC", "Intérêt", "Session", "Date de fin", "Type de groupe",
                          "Secteur d'activité", "Titre du produit", "BL d'origine", "grand dispo ou pas",
                          "mode Formation", "regroupements Secteurs d'Activité", "pays facturation"]
 
     # Copier les colonnes spécifiques
-    for colonne in tqdm(colonnes_a_copier, desc="Copie des colonnes", unit="colonne"):
-        marge_brute[colonne] = resultat[colonne]
+    copier_colonnes_specifiques(resultat, colonnes_a_copier, marge_brute)
 
     # Sauvegarder le fichier modifié
-    marge_brute.to_excel(chemin_marge_brute, index=False)
-else:
-    print("Aucune feuille contenant 'BDD' n'a été trouvée dans le fichier.")
+    sauvegarder_csv(marge_brute, CHEMIN_MARGE_BRUTE_CROSS_CSV)
+
+
+if __name__ == "__main__":
+    main()

@@ -2,6 +2,7 @@ import subprocess
 from tqdm import tqdm
 import time
 
+
 def run_script(script_path, message):
     """
     Exécute un script Python situé au chemin spécifié et affiche un message approprié.
@@ -14,6 +15,7 @@ def run_script(script_path, message):
     except subprocess.CalledProcessError as e:
         print(f"❌ Erreur lors de l'exécution du script {script_path}: {e}")
     time.sleep(1)  # Petite pause après l'exécution
+
 
 # Chemin du dossier contenant vos scripts
 base_path = "/home/laptopus/PycharmProjects/Excel_automation"
