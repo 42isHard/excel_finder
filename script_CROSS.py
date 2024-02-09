@@ -2,9 +2,14 @@ import pandas as pd
 from tqdm import tqdm
 
 # Constantes pour les chemins des fichiers
-CHEMIN_SOURCES_CSV = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/DATA/sources_CROSS.csv'
+CHEMIN_SOURCES_XLSX = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/DATA/sources.xlsx'
 CHEMIN_MARGE_BRUTE_CSV = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/SORTIE/marge_brute_CONCAT.csv'
 CHEMIN_MARGE_BRUTE_CROSS_CSV = '/home/laptopus/Bureau/SCRIPT_MARGE_BRUT/SORTIE/marge_brute_CROSS.csv'
+
+
+def charger_excel(chemin_fichier):
+    """Fonction pour charger un fichier Excel."""
+    return pd.read_excel(chemin_fichier, dtype=str)
 
 
 def charger_csv(chemin_fichier):
@@ -35,8 +40,8 @@ def sauvegarder_csv(df, chemin_fichier):
 
 def main():
     """Fonction principale."""
-    # Charger les données sources et la marge brute
-    sources = charger_csv(CHEMIN_SOURCES_CSV)
+    # Charger les données sources (Excel) et la marge brute (CSV)
+    sources = charger_excel(CHEMIN_SOURCES_XLSX)
     marge_brute = charger_csv(CHEMIN_MARGE_BRUTE_CSV)
 
     # Nettoyer les noms de colonnes

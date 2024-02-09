@@ -16,6 +16,8 @@ def categoriser(ligne):
     """Catégorise les données selon la première règle."""
     bl = str(ligne['BL']).strip() if pd.notna(ligne['BL']) else ""
     mode_formation = str(ligne['mode Formation']).strip() if pd.notna(ligne['mode Formation']) else ""
+    titre_produit = str(ligne['Titre du produit']).strip() if pd.notna(ligne['Titre du produit']) else ""
+
     if bl == "Regroupement Réglementaire" and mode_formation in ["Corporate MOOC", "Executive MOOC"]:
         return "DL REGLEMENTAIRE"
     elif bl == "Regroupement Réglementaire" and mode_formation in ["In house training", "Public training"]:
@@ -25,10 +27,10 @@ def categoriser(ligne):
     elif bl != "Regroupement Réglementaire" and mode_formation == "In house training":
         return "INTRA PRÉSENTIEL HORS REGLEMENTAIRE"
     elif bl != "Regroupement Réglementaire" and mode_formation == "Online Certificate" and any(
-            x in ligne['Titre du produit'] for x in ["hec", "cbs", "financ"]):
+            x in titre_produit for x in ["hec", "cbs", "financ"]):
         return "FEO FINANCE"
     elif bl != "Regroupement Réglementaire" and mode_formation == "Online Certificate" and not any(
-            x in ligne['Titre du produit'] for x in ["hec", "cbs", "financ"]):
+            x in titre_produit for x in ["hec", "cbs", "financ"]):
         return "FEO NON FINANCE"
     else:
         return "AUTRE DL"

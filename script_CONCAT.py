@@ -12,8 +12,8 @@ def lister_fichiers(dossier):
     fichiers_a_traiter = []
     with os.scandir(dossier) as entries:
         for entry in entries:
-            if entry.is_file() and (entry.name.startswith("GL_analytique_FFE") or entry.name.startswith(
-                    "GL_analytique_FFSAS")) and entry.name.endswith(".xlsx"):
+            if entry.is_file() and (entry.name.startswith("Grand Livre FFE") or entry.name.startswith(
+                    "Grand Livre FFSAS")) and entry.name.endswith(".xlsx"):
                 fichiers_a_traiter.append(entry.name)
     return fichiers_a_traiter
 
@@ -22,7 +22,7 @@ def charger_feuilles_YTD(dossier, fichiers):
     """Charge les feuilles YTD avec la colonne 'Entité juridique'."""
     dataframes = []
     for fichier in tqdm(fichiers, desc="Chargement des fichiers", unit="fichier"):
-        entite = "FFE" if "GL_analytique_FFE" in fichier else "FFSAS"
+        entite = "FFE" if "Grand Livre FFE" in fichier else "FFSAS"
         chemin_fichier_excel = os.path.join(dossier, fichier)
         try:
             xls = pd.read_excel(chemin_fichier_excel, sheet_name=None)
